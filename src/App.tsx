@@ -17,9 +17,30 @@ import {
   Inject,
 } from '@syncfusion/ej2-react-pdfviewer';
 import { registerLicense } from '@syncfusion/ej2-base';
+import { useEffect } from 'react';
 registerLicense('Ngo9BigBOggjHTQxAR8/V1JHaF5cWWdCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdlWXxcdnVVRGRcUk10W0pWYEo='); // 👈 must be here
 
 export  const App=()=>{
+
+useEffect(() => {
+  const handler = (e) => {
+    const text = e.target.innerText || '';
+
+    if (text.trim() === 'Download') {
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({ type: 'DOWNLOAD_CLICKED' })
+        );
+      }
+    }
+  };
+
+  document.addEventListener('click', handler);
+
+  return () => {
+    document.removeEventListener('click', handler);
+  };
+}, []); // ✅ VERY IMPORTANT  
     return (
       <div>
         <div className="control-section">
@@ -28,6 +49,15 @@ export  const App=()=>{
   documentPath="https://cdn.syncfusion.com/content/pdf/pdf-succinctly.pdf"
   // serviceUrl="https://ej2services.syncfusion.com/production/web-services/api/pdfviewer"
   style={{ height: '900px' }}
+    downloadStart={(args) => {
+    console.log('Download started');
+
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({ type: 'DOWNLOAD_CLICKED' })
+      );
+    }
+  }}
 >
             <Inject
               services={[
