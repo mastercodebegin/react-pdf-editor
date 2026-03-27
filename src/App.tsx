@@ -23,7 +23,6 @@ export  const App=()=>{
     return (
       <div>
         <div className="control-section">
-          <h2>hi</h2>
           <PdfViewerComponent
   id="container"
   documentPath="https://cdn.syncfusion.com/content/pdf/pdf-succinctly.pdf"
