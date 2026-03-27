@@ -23,28 +23,57 @@ registerLicense('Ngo9BigBOggjHTQxAR8/V1JHaF5cWWdCf1FpRmJGdld5fUVHYVZUTXxaS00DNHV
 export  const App=()=>{
 
 useEffect(() => {
-  const handler = (e) => {
-    const text = e.target.innerText || '';
+  const handler = (event) => {
+    try {
+      const data = JSON.parse(event.data);
 
-    if (text.trim() === 'Download') {
-      if (window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage(
-          JSON.stringify({ type: 'DOWNLOAD_CLICKED' })
-        );
+      console.log('📩 FROM RN:', data);
+
+      if (data.type === 'TRIGGER_DOWNLOAD') {
+        console.log('🔥 Trigger download from RN');
+
+        const viewer = document
+          .getElementById('container')
+          ?.ej2_instances?.[0];
+
+        if (!viewer) {
+          console.log('❌ Viewer not found');
+          return;
+        }
+
+        viewer.saveAsBlob().then((blob) => {
+          console.log('✅ Blob created', blob);
+
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+
+          reader.onloadend = () => {
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify({
+                type: 'PDF_FILE',
+                size: blob.size,
+              })
+            );
+          };
+        });
       }
+    } catch (e) {
+      console.log('❌ Error parsing message', e);
     }
   };
 
-  document.addEventListener('click', handler);
+  window.addEventListener('message', handler);
 
-  return () => {
-    document.removeEventListener('click', handler);
-  };
-}, []); // ✅ VERY IMPORTANT  
+  return () => window.removeEventListener('message', handler);
+}, []);
     return (
       <div>
+        <h1 style={{position:'absolute'}}>Download</h1>
         <div className="control-section">
           <PdfViewerComponent
+  //         toolbarSettings={{
+  //   toolbarItems: ['OpenOption', 'PanTool'] // ❌ remove Download
+  // }}
   id="container"
   documentPath="https://cdn.syncfusion.com/content/pdf/pdf-succinctly.pdf"
   // serviceUrl="https://ej2services.syncfusion.com/production/web-services/api/pdfviewer"
